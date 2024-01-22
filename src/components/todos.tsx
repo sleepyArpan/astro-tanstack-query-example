@@ -1,24 +1,9 @@
 import type { FormEvent } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { types, query } from '../utils';
+import * as services from './todos.services';
 
-async function fetchTodos(): Promise<types.Todo[]> {
-  const response = await fetch('/api/todos');
-  return response.json();
-}
-
-async function createNewTodo(formData: FormData) {
-  await fetch('/api/todos', {
-    method: 'POST',
-    body: formData,
-  });
-}
-
-type TodosProps = {
-  initialData: types.Todo[];
-};
-
-export default function Todos({ initialData }: TodosProps) {
+export default function Todos() {
   const {
     data: todosData,
     isError: isTodosFetchError,
@@ -26,8 +11,7 @@ export default function Todos({ initialData }: TodosProps) {
   } = useQuery(
     {
       queryKey: ['todos'],
-      queryFn: fetchTodos,
-      initialData,
+      queryFn: services.fetchTodos,
     },
     query.client
   );
@@ -38,7 +22,7 @@ export default function Todos({ initialData }: TodosProps) {
     error: createNewTodoError,
   } = useMutation(
     {
-      mutationFn: createNewTodo,
+      mutationFn: services.createNewTodo,
       onSuccess: () => {
         query.client.invalidateQueries({ queryKey: ['todos'] });
       },

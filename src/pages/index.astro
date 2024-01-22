@@ -1,9 +1,12 @@
 ---
 import { Todos } from '../components';
-import { GET } from './api/todos';
-import { types } from '../utils';
+import { query } from '../utils';
+import * as todoServices from '../components/todos.services';
 
-const initialTodos: Array<types.Todo> = await (await GET(Astro)).json();
+await query.client.prefetchQuery({
+  queryKey: ['todos'],
+  queryFn: todoServices.fetchTodos,
+});
 ---
 
 <html lang='en'>
@@ -16,6 +19,6 @@ const initialTodos: Array<types.Todo> = await (await GET(Astro)).json();
   </head>
   <body>
     <h1>Astro</h1>
-    <Todos client:only='react' initialData={initialTodos} />
+    <Todos client:only='react' />
   </body>
 </html>
