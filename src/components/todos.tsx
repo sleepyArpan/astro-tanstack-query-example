@@ -1,9 +1,5 @@
 import type { FormEvent } from 'react';
-import {
-  useQuery,
-  QueryClientProvider,
-  useMutation,
-} from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { types, query } from '../utils';
 
 async function fetchTodos(): Promise<types.Todo[]> {
@@ -18,26 +14,37 @@ async function createNewTodo(formData: FormData) {
   });
 }
 
-function Todos() {
+type TodosProps = {
+  initialData: types.Todo[];
+};
+
+export default function Todos({ initialData }: TodosProps) {
   const {
     data: todosData,
     isError: isTodosFetchError,
     isPending: isTodosFetchPending,
-  } = useQuery({
-    queryKey: ['todos'],
-    queryFn: fetchTodos,
-  });
+  } = useQuery(
+    {
+      queryKey: ['todos'],
+      queryFn: fetchTodos,
+      initialData,
+    },
+    query.client
+  );
 
   const {
     mutate: createNewTodoMutate,
     status: createNewTodoStatus,
     error: createNewTodoError,
-  } = useMutation({
-    mutationFn: createNewTodo,
-    onSuccess: () => {
-      query.client.invalidateQueries({ queryKey: ['todos'] });
+  } = useMutation(
+    {
+      mutationFn: createNewTodo,
+      onSuccess: () => {
+        query.client.invalidateQueries({ queryKey: ['todos'] });
+      },
     },
-  });
+    query.client
+  );
 
   if (isTodosFetchPending) return <div>Loading...</div>;
   if (isTodosFetchError)
@@ -79,13 +86,5 @@ function Todos() {
         {getFormFooter()}
       </form>
     </div>
-  );
-}
-
-export default function TodosWrapper() {
-  return (
-    <QueryClientProvider client={query.client}>
-      <Todos />
-    </QueryClientProvider>
   );
 }

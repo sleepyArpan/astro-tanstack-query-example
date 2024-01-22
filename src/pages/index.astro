@@ -1,5 +1,9 @@
 ---
 import { Todos } from '../components';
+import { GET } from './api/todos';
+import { types } from '../utils';
+
+const initialTodos: Array<types.Todo> = await (await GET(Astro)).json();
 ---
 
 <html lang='en'>
@@ -12,6 +16,6 @@ import { Todos } from '../components';
   </head>
   <body>
     <h1>Astro</h1>
-    <Todos client:only='react' />
+    <Todos client:only='react' initialData={initialTodos} />
   </body>
 </html>
